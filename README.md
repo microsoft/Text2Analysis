@@ -1,28 +1,70 @@
-# Project
+# Text2Analysis
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+This repo is the code and data for [_Text2Analysis: A Benchmark of Table Question Answering with Advanced Data Analysis and Unclear Queries_](https://arxiv.org/abs/2312.13671). Text2Analysis is a dataset including advanced analysis tasks and unclear queries that were rarely addressed in previous research work.
 
-As the maintainer of this project, please make a few updates:
+![image](figures/image.png)
+<center>Examples of Text2Analysis Benchmark.</center>
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+## Overall
+Tabular data analysis is crucial in various fields, and large language models show promise in this area. However, current research mostly focuses on rudimentary tasks like Text2SQL and TableQA, neglecting advanced analysis like forecasting and chart generation. To address this gap, we developed the Text2Analysis benchmark, incorporating advanced analysis tasks that go beyond the SQL-compatible operations and require more in-depth analysis. We also develop five innovative and effective annotation methods, harnessing the capabilities of large language models to enhance data quality and quantity. Additionally, we include unclear queries that resemble real-world user questions to test how well models can understand and tackle such challenges. Finally, we collect 2249 query-result pairs with 347 tables. We evaluate five state-of-the-art models using three different metrics and the results show that our benchmark presents introduces considerable challenge  in the field of tabular data analysis, paving the way for more advanced research opportunities.
 
-## Contributing
+## Data Statistics and Distribution
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+Text2Analysis encompasses a total of 2249 $(table,\ query,\ code,\ result)$ pairs, sourced from 347 distinct tables. 
+Queries of Text2Analysis encompass a variety of tasks. And they encompass a diversity of unclear queries. Those figures highlight the distribution of queries and code and further showcase the  diversity of the dataset and the difficulty of the problem.
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+![image](figures/sta_type.png)
+<center>Analysis Task Distribution of All Queries. </center>
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+![image](figures/sta_unclear.png)
+<center>Task & Parameter Distribution of Unclear Queries. </center>
+
+## Details of Text2Analysis
+The Text2Analysis dataset includes the following components:
+
++ table_name: The name of the table.
++ html: The HTML representation of the corresponding table.
++ query: The specific query related to the data.
++ operations: The operations involved in the query.
++ ambiguities: The ambiguities associated with the query.
++ python: The Python code that provides solution(s) to the query.
++ python_res: The result obtained from executing the Python code.
++ source: The origin or source of the data.
++ ori_query: The original form of the query.
++ given_parameter: The parameter related to the query's ambiguities.
+
+The dataset will be publicly available after the company’s approval process is completed.
+
+## How to run Text2Analysis
+Please follow these steps:
++ Add your own inference model function run_llm() in [excel_api/run.py](api/run.py).
++ Run [run_inference.py](run_inference.py) with the following shell:
+```shell
+python run_inference.py --model <model_name> --output_dir <output_dir>
+```
+
++ Evaluate with [run_test.py](run_test.py):
+```shell
+python run_test.py --model <model_name> --output_dir <output_dir>
+```
+
+## Citation
+If you find our work helpful, please use the following citations.
+```
+@article{
+    xinyihe2024text2analysis,
+    title={Text2Analysis: A Benchmark of Table Question Answering with Advanced Data Analysis and Unclear Queries}, 
+    volume={38}, 
+    url={https://ojs.aaai.org/index.php/AAAI/article/view/29779}, 
+    DOI={10.1609/aaai.v38i16.29779}, 
+    number={16}, 
+    journal={Proceedings of the AAAI Conference on Artificial Intelligence}, 
+    author={He, Xinyi and Zhou, Mengyu and Xu, Xinrun and Ma, Xiaojun and Ding, Rui and Du, Lun and Gao, Yan and Jia, Ran and Chen, Xu and Han, Shi and Yuan, Zejian and Zhang, Dongmei}, 
+    year={2024}, 
+    month={Mar.}, 
+    pages={18206-18215}
+}
+```
 
 ## Trademarks
 
