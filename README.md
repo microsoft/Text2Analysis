@@ -48,6 +48,42 @@ python run_inference.py --model <model_name> --output_dir <output_dir>
 python run_test.py --model <model_name> --output_dir <output_dir>
 ```
 
+## Safe CSV data loading
+
+Benchmark and prediction CSV cells are untrusted data. The dataset loader,
+evaluation loader, taxonomy metadata, result parser, and auxiliary CSV tools use
+the shared `Common.safe_data` parser rather than Python `eval`.
+
+Standard JSON and legacy Python data literals are supported. Calls, attribute
+access, comprehensions, executable expressions, sets, bytes, and non-finite
+numbers are not supported as serialized data. Each serialized cell is limited to
+1 MiB of UTF-8 text, 20,000 parsed nodes/items, and 64 nesting levels. Lists of
+alternative Python solutions must contain strings, their result lists must have
+matching lengths, and parameter entries must be strings or null. A scalar
+solution's list-valued result remains a single result rather than being split
+into alternatives. Invalid structured cells fail with `DataFormatError`; they
+are never retried as executable expressions. Plain textual result labels remain
+plain strings in the result checker.
+
+This fixes code execution during CSV deserialization (CWE-502/CWE-94). It does
+**not** sandbox the benchmark's intentional execution of Python solutions in
+`eval_python`, `run_python`, or `AutoDebug`. Do not evaluate untrusted Python
+solutions on a privileged host or with credentials, private files, or unrestricted
+network access. Such evaluation requires a separately secured execution boundary.
+
+Run the regression tests from the repository root:
+
+```shell
+python -B -m unittest discover -s tests -v
+```
+
+The parser tests require only the standard library. Loader and result-checker
+tests additionally require pandas and scikit-learn. They exercise the actual CSV
+loading and parsing code using synthetic fixtures, while substituting unavailable
+OPAL/annotation data imports, GCR model resources, forecasting metrics, and
+progress display. They do not run model inference or the complete benchmark.
+The full published dataset and private resources are not included in this checkout.
+
 ## Citation
 If you find our work helpful, please use the following citations.
 ```

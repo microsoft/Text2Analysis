@@ -9,6 +9,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from Common.example_bank import Example
+from Common.safe_data import DataFormatError, parse_example_fields, parse_list_cell
 from Common.taxonomy import AnaTaxonomy
 from Evaluation.checker import Checker, get_L2_anatype, FORECASTING_GT
 
@@ -64,11 +65,11 @@ if __name__ == '__main__':
     table2examples = defaultdict(dict)  # table_name -> query -> example
     for index, row in gt.iterrows():
         example = Example.init_subset_query(row)
-        example.python = eval(row["python"]) if str(row["python"]).startswith("[") else [str(row["python"])]
-        example.python_res = eval(row["python_res"]) if str(row["python"]).startswith("[") else [str(row["python_res"])]
+        fields = parse_example_fields(row)
+        example.python = fields["python"]
+        example.python_res = fields["python_res"]
         example.ori_query = row["ori_query"]
-        example.given_parameter = (eval(row["given_parameter"]) if row["given_parameter"].startswith("[") else [
-            row["given_parameter"]]) if pd.notna(row["given_parameter"]) else [None]
+        example.given_parameter = fields["given_parameter"]
         table2examples[example.table_name][example.query] = example
 
 
@@ -92,10 +93,9 @@ if __name__ == '__main__':
         else:
             table = pd.read_excel(os.path.join(dataset_path, table_name))
         if "code_result" in row and pd.notna(row["code_result"]):
-            try:
-                code_result = eval(row["code_result"]) if row["code_result"].startswith("[") else [row["code_result"]]
-            except:
-                code_result = [row["code_result"]]
+            code_result = parse_list_cell(row["code_result"], "code_result")
+            if len(code_result) != len(example.python):
+                raise DataFormatError("code_result: length must match python")
         else:
             code_result = None
         eva_list = []
