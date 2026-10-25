@@ -7,6 +7,7 @@ import os
 import pandas as pd
 import traceback
 from copy import deepcopy
+from Common.safe_data import parse_literal
 from Evaluation.checker import Checker, AnaTaxonomy
 from Evaluation.evaluate import DATSET_PATH
 def run_python(table,code, dtype=False):
@@ -107,7 +108,7 @@ if __name__ == '__main__':
                     if "\\\"" in row["answer_ori"]:
                         answer_ori= json.loads(row["answer_ori"].replace("\\\"", "\""))
                     else:
-                        answer_ori=eval(row["answer_ori"])
+                        answer_ori = parse_literal(row["answer_ori"], "answer_ori")
                 except:
                     answer_ori=row["answer_ori"]
                     print(row["answer_ori"])
@@ -129,7 +130,7 @@ if __name__ == '__main__':
                     if "\\\"" in row["python_res"]:
                         python_res = json.loads(row["python_res"].replace("\\\"", "\""))
                     else:
-                        python_res = eval(row["python_res"])
+                        python_res = parse_literal(row["python_res"], "python_res")
                 except:
                     python_res=row["python_res"]
                     if type(python_res)==str and  "dtype:" in python_res:

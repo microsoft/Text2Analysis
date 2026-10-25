@@ -3,6 +3,7 @@
 
 import pandas as pd
 from Common.example_bank import Example
+from Common.safe_data import parse_example_fields
 from Common.taxonomy import AnaTaxonomy
 from Evaluation.checker import Checker, get_L2_anatype, FORECASTING_GT
 import os
@@ -58,11 +59,11 @@ class Text2AnalysisDataset:
             example.source=row["source"]
 
             if is_eval:
-                example.python = eval(row["python"]) if str(row["python"]).startswith("[") else [str(row["python"])]
-                example.python_res = eval(row["python_res"]) if str(row["python"]).startswith("[") else [str(row["python_res"])]
+                fields = parse_example_fields(row)
+                example.python = fields["python"]
+                example.python_res = fields["python_res"]
                 example.ori_query = row["ori_query"]
-                example.given_parameter = (eval(row["given_parameter"]) if row["given_parameter"].startswith("[") else [
-                    row["given_parameter"]]) if pd.notna(row["given_parameter"]) else [None]
+                example.given_parameter = fields["given_parameter"]
                 if pd.isna(example.ori_query):
                     example.ori_query = example.query
                 
@@ -83,14 +84,7 @@ class Text2AnalysisDataset:
                     table = pd.read_excel(os.path.join(dataset_path, table_name))
                 example.table = table
 
-                if "code_result" in row and pd.notna(row["code_result"]):
-                    try:
-                        code_result = eval(row["code_result"]) if row["code_result"].startswith("[") else [row["code_result"]]
-                    except:
-                        code_result = [row["code_result"]]
-                else:
-                    code_result = None
-                example.code_result = code_result
+                example.code_result = fields["code_result"]
 
             self.examples.append(example)
 

@@ -12,6 +12,7 @@ from greykite.common.evaluation import calc_pred_err
 from sklearn import metrics
 
 from Common.taxonomy import AnaTaxonomy
+from Common.safe_data import DataFormatError, MAX_CELL_BYTES, parse_literal
 
 FLOAT_PRECISION = 2
 
@@ -262,14 +263,14 @@ class Checker:
         return result
 
     def load_string_result(self, result_string, orient='split'):  # TODO: dict of dataframe,orient='records'
+        if isinstance(result_string, str) and len(result_string.encode("utf-8")) > MAX_CELL_BYTES:
+            raise DataFormatError("result: text exceeds the size limit")
         try:
-            result = json.loads(result_string)
-        except:
-            try:
-                result = eval(result_string)
-            except:
-                result = result_string
-                print(f"[Fail to load string result]: {result_string}")
+            result = parse_literal(result_string, "result")
+        except DataFormatError:
+            if not isinstance(result_string, str) or result_string.lstrip().startswith(("[", "{", "(")):
+                raise
+            result = result_string
         if type(result) == dict:
             try:
                 result=self.read_json(result,orient)

@@ -3,6 +3,7 @@
 
 import json
 
+from Common.safe_data import parse_list_cell
 from Common.table_lib import *
 from Common.taxonomy import *
 from GCR.run import Role
@@ -73,11 +74,11 @@ class Example:
         example = cls()
         example.table = pd.read_html(content["html"])[0]
         example.query = content["query"]
-        example.ana_taxonomy = [AnaTaxonomy.from_raw_str(tax) for tax in eval(content["operations"])]
+        example.ana_taxonomy = [AnaTaxonomy.from_raw_str(tax) for tax in parse_list_cell(content["operations"], "operations", require_list=True)]
         example.query_taxonomy = [QueryTaxonomy.from_raw_str(tax[-1]) for tax in
                                   json.loads(content["ambiguities_new"])[0]["taxonomy"]] \
             if not (without_annotation or pd.isna(content["ambiguities_new"])) \
-            else [QueryTaxonomy.from_raw_str(tax) for tax in eval(content["ambiguities"])]
+            else [QueryTaxonomy.from_raw_str(tax) for tax in parse_list_cell(content["ambiguities"], "ambiguities", require_list=True)]
         example.table_name = content["table_name"]
         example.html = content["html"]
         example.given_ana_taxonomy = AnaTaxonomy(content["given_anatype"])
@@ -146,9 +147,9 @@ class Example:
         example = cls()
         example.table = pd.read_html(content["html"])[0]
         example.query = content["query"]
-        example.ana_taxonomy = [AnaTaxonomy.from_raw_str(tax) for tax in eval(content["operations"])] if pd.notna(
+        example.ana_taxonomy = [AnaTaxonomy.from_raw_str(tax) for tax in parse_list_cell(content["operations"], "operations", require_list=True)] if pd.notna(
             content["operations"]) else []
-        example.query_taxonomy = [QueryTaxonomy.from_raw_str(tax) for tax in eval(content["ambiguities"])] if pd.notna(
+        example.query_taxonomy = [QueryTaxonomy.from_raw_str(tax) for tax in parse_list_cell(content["ambiguities"], "ambiguities", require_list=True)] if pd.notna(
             content["ambiguities"]) else []
         example.table_name = content["table_name"]
         example.html = content["html"]

@@ -8,6 +8,7 @@ from collections import defaultdict
 import pandas as pd
 
 from Common.example_bank import Example
+from Common.safe_data import parse_example_fields
 from Common.taxonomy import AnaTaxonomy
 from Evaluation.check_DIAL_result import python_res2res
 from Evaluation.checker import cut_forecast_table, eval_python, get_L2_anatype
@@ -21,8 +22,9 @@ subset_table = pd.read_csv(subset_path)
 table2examples = defaultdict(dict)  # table_name -> query -> example
 for index, row in subset_table.iterrows():
     example = Example.init_subset_query(row)
-    example.python = eval(row["python"])
-    example.python_res = eval(row["python_res"])
+    fields = parse_example_fields(row)
+    example.python = fields["python"]
+    example.python_res = fields["python_res"]
     example.ori_query = row["ori_query"]
     table2examples[example.table_name][example.query] = example
 

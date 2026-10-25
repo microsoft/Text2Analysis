@@ -8,6 +8,7 @@ from collections import defaultdict
 import pandas as pd
 
 from Common.example_bank import Example
+from Common.safe_data import parse_example_fields
 from Common.taxonomy import QueryTaxonomy, AnaTaxonomy
 from Evaluation.checker import get_L2_anatype
 
@@ -27,11 +28,11 @@ for dataset_path in dataset_paths:
     for index, row in dataset.iterrows():
         example = Example.init_subset_query(row)
         task = get_L2_anatype(example.ana_taxonomy)
-        example.python = "###### Code ######".join([str(i) for i in eval(row["python"])])
-        example.python_res = "###### Result ######".join([str(i) for i in eval(row["python_res"])])
+        fields = parse_example_fields(row)
+        example.python = "###### Code ######".join([str(i) for i in fields["python"]])
+        example.python_res = "###### Result ######".join([str(i) for i in fields["python_res"]])
         example.ori_query = row["ori_query"]
-        example.given_parameter = (eval(row["given_parameter"]) if row["given_parameter"].startswith("[") else [
-            row["given_parameter"]]) if pd.notna(row["given_parameter"]) else [None]
+        example.given_parameter = fields["given_parameter"]
         examples[task]["Clear" if QueryTaxonomy.Everything_is_clear in example.query_taxonomy else "Unclear"].append(
             example)
 human_eval_examples = []
